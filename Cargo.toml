@@ -1,0 +1,15 @@
+[package]
+name = "pixel-points"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+axum = "0.5.1"
+chrono = { version = "0.4.19", features = ["serde"] }
+serde = { version = "1.0.136", features = ["derive"] }
+sqlx = { version = "0.5", features = [ "runtime-tokio-native-tls" , "postgres", "uuid", "chrono" ] }
+tokio = { version = "1.17.0", features = ["macros", "rt", "rt-multi-thread"] }
+# we can't use the latest uuid because it conflicts with what sqlx needs
+uuid = { version = "0.8", features = ["v4", "serde"] }

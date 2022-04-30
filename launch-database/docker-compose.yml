@@ -1,0 +1,11 @@
+version: "3.7"
+
+services:
+  database:
+    image: postgres:12.6-alpine
+    environment:
+      - POSTGRES_USER=pixel
+      - POSTGRES_PASSWORD=pixel
+      - POSTGRES_DB=pixel
+    ports:
+      - 5432:5432
