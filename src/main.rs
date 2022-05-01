@@ -1,8 +1,12 @@
-use axum::{http::StatusCode, response::IntoResponse, routing::get, Extension, Json, Router};
+use axum::{
+    extract::Query, http::StatusCode, response::IntoResponse, routing::get, Extension, Json, Router,
+};
 use chrono::{DateTime, Utc};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 use std::sync::Arc;
+
+mod database;
 
 #[derive(Serialize)]
 pub struct Game {
@@ -12,13 +16,32 @@ pub struct Game {
     released: DateTime<Utc>,
 }
 
+#[derive(Serialize)]
+pub struct Score {
+    points: i32,
+    player: String,
+    achieved: DateTime<Utc>,
+    game_id: uuid::Uuid,
+}
+
+#[derive(Deserialize)]
+pub struct ListScoresQuery {
+    pub game_name: Option<String>,
+}
+
 pub async fn list_games(Extension(state): Extension<Arc<State>>) -> impl IntoResponse {
-    let games = sqlx::query_as!(Game, r#"SELECT game_id, name, version, released FROM game"#)
-        .fetch_all(&state.db_pool)
-        .await
-        .expect("Failed to do query.");
+    let games = database::list_games(&state.db_pool).await;
 
     (StatusCode::OK, Json(games))
+}
+
+pub async fn list_scores(
+    Extension(state): Extension<Arc<State>>,
+    params: Query<ListScoresQuery>,
+) -> impl IntoResponse {
+    let scores = database::list_scores(&state.db_pool, params.game_name.clone()).await;
+
+    (StatusCode::OK, Json(scores))
 }
 
 pub struct State {
@@ -37,6 +60,7 @@ async fn main() {
 
     let app = Router::new()
         .route("/v1/games", get(list_games))
+        .route("/v1/scores", get(list_scores))
         .layer(Extension(state));
 
     axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
