@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS score (
     points             INT NOT NULL,
     player             TEXT NOT NULL,
     achieved           TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    game_id            UUID REFERENCES game (game_id) ON DELETE CASCADE
+    game_id            UUID NOT NULL REFERENCES game (game_id) ON DELETE CASCADE
 );
 
 INSERT INTO game (game_id, name, version) VALUES ('8bee6702-4d17-4134-a99e-d21158b66bc4', 'Spooky Speech Spells', 'v0.1');
+INSERT INTO score (points, player, game_id) VALUES (100, 'nik', '8bee6702-4d17-4134-a99e-d21158b66bc4');
